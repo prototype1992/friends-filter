@@ -27,7 +27,7 @@ html, body, .wrapper {
     margin-bottom: 50px;
 }
 
-.js-open-modal {
+.open-modal {
     background-color: #ffa16c;
     border: none;
     user-select: none;
@@ -94,19 +94,18 @@ html, body, .wrapper {
     padding-right: 13px;
 }
 
-.drugofiltr-top__left {
+.drugofiltr-top__title {
     font-size: 16px;
     font-weight: 500;
     margin-top: 0;
     margin-bottom: 0;
 }
 
-.drugofiltr-top__right-btn {
-    background-image: url('./img/modal-close.png');
+.drugofiltr-top__btn {
+    background: transparent url('./img/modal-close.png');
     width: 14px;
     height: 14px;
     border: none;
-    background-color: transparent;
 }
 
 .drugofiltr-search {
@@ -124,9 +123,7 @@ html, body, .wrapper {
 }
 
 .drugofiltr-search > input.search-icon {
-    background-image: url('./img/icon-search.png');
-    background-position: 7px center;
-    background-repeat: no-repeat;
+    background: url('./img/icon-search.png') no-repeat 7px center;
     padding-left: 26px;
 }
 
@@ -220,9 +217,8 @@ html, body, .wrapper {
     height: 14px;
 }
 
+/*custom scroll*/
 ::-webkit-scrollbar-button {
-    /*background-image: url('');*/
-    background-repeat: no-repeat;
     width: 5px;
     height: 0;
 }
@@ -235,8 +231,6 @@ html, body, .wrapper {
 }
 
 ::-webkit-resizer {
-    /*background-image: url('');*/
-    background-repeat: no-repeat;
     width: 4px;
     height: 0;
 }
