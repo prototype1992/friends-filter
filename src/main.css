@@ -102,7 +102,7 @@ html, body, .wrapper {
 }
 
 .drugofiltr-top__btn {
-    background: transparent url('./img/modal-close.png');
+    background: transparent url('img/modal-close.png');
     width: 14px;
     height: 14px;
     border: none;
@@ -123,7 +123,7 @@ html, body, .wrapper {
 }
 
 .drugofiltr-search > input.search-icon {
-    background: url('./img/icon-search.png') no-repeat 7px center;
+    background: url('img/icon-search.png') no-repeat 7px center;
     padding-left: 26px;
 }
 
@@ -206,13 +206,13 @@ html, body, .wrapper {
 }
 
 .friend__plus {
-    background-image: url('./img/plus.png');
+    background-image: url('img/plus.png');
     width: 16px;
     height: 16px;
 }
 
 .friend__delete {
-    background-image: url('./img/delete.png');
+    background-image: url('img/delete.png');
     width: 14px;
     height: 14px;
 }
