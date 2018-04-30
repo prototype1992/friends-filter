@@ -48,7 +48,7 @@ html, body, .wrapper {
     color: #fff;
     transform: translateX(-50%) translateY(-50%);
     width: 620px;
-    height: 490px;
+    min-height: 490px;
     z-index: 100;
     border-radius: 6px;
     /*display: none;*/

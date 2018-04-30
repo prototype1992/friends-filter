@@ -7,4 +7,4 @@ export const friends = document.querySelector('#friends');
 export const sortedFriends = document.querySelector('#sortedFriends');
 
 // кнопка сохранения в локальном хранилище
-export const friendsSave = document.querySelector('#friendsSave');
+export const friendsSaveBtn = document.querySelector('#friendsSaveBtn');
