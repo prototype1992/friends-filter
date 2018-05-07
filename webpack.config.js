@@ -31,7 +31,7 @@ module.exports = {
         }),
         new ExtractTextPlugin('styles.css'),
         new HtmlPlugin({
-            title: 'Loft School sample project',
+            title: 'ДругоФильтр ВК',
             template: 'index.hbs'
         }),
         new CleanWebpackPlugin(['dist'])

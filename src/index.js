@@ -1,4 +1,3 @@
-// получаем элементы
 // элементы поиска
 const friendsSearch = document.querySelector('#friendsSearch');
 const sortedSearch = document.querySelector('#sortedSearch');
@@ -99,13 +98,11 @@ function saveFriends() {
 function addFriend(event) {
     let element = event.target;
 
-    // console.log('event', event);
-    // console.log('element', element);
-
     // если это кнопка добавление с классом friend__plus
     if (element.classList.contains('friend__plus')) {
         // получаем ID вконтакте друга и приводим к number через +
         let friendId = +element.getAttribute('data-id');
+        // получаем порядковый ID друга
         let friendVkId = +element.getAttribute('data-vk-id');
 
         console.log('friendId', friendId);
@@ -123,6 +120,37 @@ function addFriend(event) {
         // cons
         console.log('currentFriend', currentFriend);
         console.log('rightFriends', rightFriends);
+
+        // рендерим списки друзей
+        renderFriends(friends, leftFriends, 'friend__plus');
+        renderFriends(sortedFriends, rightFriends, 'friend__delete');
+    }
+}
+
+// удаление друзей из списка
+function deleteFriend(event) {
+    // выбираем элемент по которому нажали
+    let element = event.target;
+
+    console.log('element', element);
+
+    // если это крестик, кнопка удаления
+    if (element.classList.contains('friend__delete')) {
+        // получаем порядковый ID друга
+        let friendId = +element.getAttribute('data-id');
+        // получаем VK id для перебора друга из массива
+        let friendVkId = +element.getAttribute('data-vk-id');
+        console.log('friendId', friendId);
+        console.log('friendVkId', friendVkId);
+
+        // получаем текущего друга сортируя по vk id
+        let currentFriend = rightFriends.find(item => item.id === friendVkId);
+
+        // добавляем его в основной список, вперед
+        leftFriends.unshift(currentFriend);
+
+        // удаляем из выбранного списка, использя порядковый id
+        rightFriends.splice(friendId, 1);
 
         // рендерим списки друзей
         renderFriends(friends, leftFriends, 'friend__plus');
@@ -157,8 +185,14 @@ vkLogin()
     })
     .catch(error => console.error('1. Не удалось подключиться к VK API', error));
 
-// событие добавления друзей, нажав на элемент списка
+
+/*EVENTS*/
+
+// событие добавления друзей, нажав на элемент плюс
 friends.addEventListener('click', addFriend);
+
+// событие удаления друзей, нажав на элемент крестик
+sortedFriends.addEventListener('click', deleteFriend);
 
 // поиск слева
 friendsSearch.addEventListener('keyup', searchFriend);
