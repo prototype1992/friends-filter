@@ -92,6 +92,10 @@ function searchFriend() {
 // сохранение друзей в локальном хранилище
 function saveFriends() {
     console.log('Сохранение...');
+    console.log('leftFriends', leftFriends);
+    console.log('rightFriends', rightFriends);
+    localStorage.setItem('mainFriends', JSON.stringify(leftFriends));
+    localStorage.setItem('sortedFriends', JSON.stringify(rightFriends));
 }
 
 // добавление друзей
@@ -169,15 +173,13 @@ vkLogin()
         console.log('2. Получили друзей с ВК', data.response);
 
         // проверка на наличие в локальном хранилище друзей
-        // if (localStorage.getItem('leftFriends') && localStorage.getItem('rightFriends')) {
-        //     leftFriends = JSON.parse(localStorage.getItem('leftFriends'));
-        //     rightFriends = JSON.parse(localStorage.getItem('rightFriends'));
-        // } else {
-        //     leftFriends = data.response.items;
-        //     localStorage.setItem('leftFriends', JSON.stringify(data.response.items));
-        // }
-
-        leftFriends = data.response.items;
+        if (localStorage.getItem('mainFriends') && localStorage.getItem('sortedFriends')) {
+            leftFriends = JSON.parse(localStorage.getItem('mainFriends'));
+            rightFriends = JSON.parse(localStorage.getItem('sortedFriends'));
+        } else {
+            leftFriends = data.response.items;
+            rightFriends = [];
+        }
 
         // рендерим списки друзей
         renderFriends(friends, leftFriends, 'friend__plus');
