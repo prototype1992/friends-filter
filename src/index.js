@@ -1,3 +1,7 @@
+import {
+    isMatching
+} from './helpers';
+
 // элементы поиска
 const friendsSearch = document.querySelector('#friendsSearch');
 const sortedSearch = document.querySelector('#sortedSearch');
@@ -8,7 +12,6 @@ const sortedFriends = document.querySelector('#sortedFriends');
 
 // кнопка сохранения в локальном хранилище
 const friendsSaveBtn = document.querySelector('#friendsSaveBtn');
-
 
 // массивы для хранения друзей
 let leftFriends = [];
@@ -50,7 +53,6 @@ function callApi(metod, params) {
     })
 }
 
-
 // Рендер списка друзей
 function renderFriends(element, friends, btnClassName) {
     let list = '<ul class="friends__list">';
@@ -85,15 +87,30 @@ function renderFriends(element, friends, btnClassName) {
 }
 
 // поиск друзей
-function searchFriend() {
-    console.log('Поиск...');
+function searchFriend(event) {
+    // создаем новый массив для найденных друзей
+    let searchFriends = [];
+
+    // получаем значение со строки поиска
+    let value = event.target.value;
+
+    // проходимся циклом по всем друзьям
+    for (let i = 0; i < leftFriends.length; i++) {
+        // соединяем имя и фамилию
+        let fullName = `${leftFriends[i].first_name} ${leftFriends[i].last_name}`;
+        // если есть совпадение значения в fullName
+        if (isMatching(fullName, value)) {
+            // добавляем друга из текущей итерации
+            searchFriends.push(leftFriends[i]);
+        }
+    }
+    // вызываем рендер основного списка друзей
+    renderFriends(friends, searchFriends, 'friend__plus');
 }
 
 // сохранение друзей в локальном хранилище
 function saveFriends() {
     console.log('Сохранение...');
-    console.log('leftFriends', leftFriends);
-    console.log('rightFriends', rightFriends);
     localStorage.setItem('mainFriends', JSON.stringify(leftFriends));
     localStorage.setItem('sortedFriends', JSON.stringify(rightFriends));
 }
