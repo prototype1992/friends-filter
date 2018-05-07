@@ -1,3 +1,12 @@
+// получаем элементы
+import {
+    friendsSearch,
+    sortedSearch,
+    friends,
+    sortedFriends,
+    friendsSaveBtn
+} from './elements';
+
 // Рендер списка друзей
 export function renderFriends(element, friends, btnClassName) {
     let list = '<ul class="friends__list">';
