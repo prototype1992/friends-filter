@@ -2,56 +2,25 @@ import {
     isMatching
 } from './helpers';
 
+import {
+    vkLogin,
+    callApi
+} from './model';
+
 // элементы поиска
 const friendsSearch = document.querySelector('#friendsSearch');
 const sortedSearch = document.querySelector('#sortedSearch');
 
 // блоки обертки списка друзей
-const friends = document.querySelector('#friends');
-const sortedFriends = document.querySelector('#sortedFriends');
+const mainList = document.querySelector('#mainList');
+const sortedList = document.querySelector('#sortedList');
 
 // кнопка сохранения в локальном хранилище
 const friendsSaveBtn = document.querySelector('#friendsSaveBtn');
 
 // массивы для хранения друзей
-let leftFriends = [];
-let rightFriends = [];
-
-// авторизация vk
-function vkLogin() {
-    return new Promise((resolve, reject) => {
-        // инициализируем приложение
-        VK.init({
-            apiId: 5900685 // 5267932
-        });
-
-        // авторизовываемся
-        VK.Auth.login(data => {
-            if (data.session) {
-                console.log('vk ok');
-            }
-            // если не удалось соединиться
-            if (data.status !== "connected") {
-                reject();
-            } else {
-                // если соединение удалось
-                resolve()
-            }
-        }, 2) // метка 2 - получение информации о друзьях
-    })
-}
-
-// отправка запросов в api vk
-function callApi(metod, params) {
-    return new Promise((resolve, reject) => {
-        VK.api(metod, params, result => {
-            if (result.error) {
-                reject(result);
-            }
-            resolve(result)
-        });
-    })
-}
+let mainFriends = [];
+let sortedFriends = [];
 
 // Рендер списка друзей
 function renderFriends(element, friends, btnClassName) {
@@ -65,8 +34,6 @@ function renderFriends(element, friends, btnClassName) {
 
         // соединяем имя и фамилию
         let friendFullName = `${friends[i].first_name} ${friends[i].last_name}`;
-
-        // console.log(friends[i]);
 
         // создаем пункт друга, и заполняем его данными
         list += `<li class="friend" data-id="${i}" data-vk-id="${friends[i].id}" draggable="true">
@@ -86,33 +53,59 @@ function renderFriends(element, friends, btnClassName) {
     element.innerHTML = list;
 }
 
-// поиск друзей
-function searchFriend(event) {
+// поиск друзей в основном списке
+function searchMainFriends(event) {
     // создаем новый массив для найденных друзей
     let searchFriends = [];
+
+    console.log('searchMainFriends');
 
     // получаем значение со строки поиска
     let value = event.target.value;
 
     // проходимся циклом по всем друзьям
-    for (let i = 0; i < leftFriends.length; i++) {
+    for (let i = 0; i < mainFriends.length; i++) {
         // соединяем имя и фамилию
-        let fullName = `${leftFriends[i].first_name} ${leftFriends[i].last_name}`;
+        let fullName = `${mainFriends[i].first_name} ${mainFriends[i].last_name}`;
         // если есть совпадение значения в fullName
         if (isMatching(fullName, value)) {
             // добавляем друга из текущей итерации
-            searchFriends.push(leftFriends[i]);
+            searchFriends.push(mainFriends[i]);
         }
     }
     // вызываем рендер основного списка друзей
-    renderFriends(friends, searchFriends, 'friend__plus');
+    renderFriends(mainList, searchFriends, 'friend__plus');
+}
+
+// поиск друзей в основном списке
+function searchSortedFriends(event) {
+    // создаем новый массив для найденных друзей
+    let searchFriends = [];
+
+    console.log('searchSortedFriends');
+
+    // получаем значение со строки поиска
+    let value = event.target.value;
+
+    // проходимся циклом по всем друзьям
+    for (let i = 0; i < sortedFriends.length; i++) {
+        // соединяем имя и фамилию
+        let fullName = `${sortedFriends[i].first_name} ${sortedFriends[i].last_name}`;
+        // если есть совпадение значения в fullName
+        if (isMatching(fullName, value)) {
+            // добавляем друга из текущей итерации
+            searchFriends.push(sortedFriends[i]);
+        }
+    }
+    // вызываем рендер основного списка друзей
+    renderFriends(sortedList, searchFriends, 'friend__delete');
 }
 
 // сохранение друзей в локальном хранилище
 function saveFriends() {
     console.log('Сохранение...');
-    localStorage.setItem('mainFriends', JSON.stringify(leftFriends));
-    localStorage.setItem('sortedFriends', JSON.stringify(rightFriends));
+    localStorage.setItem('mainFriends', JSON.stringify(mainFriends));
+    localStorage.setItem('sortedFriends', JSON.stringify(sortedFriends));
 }
 
 // добавление друзей
@@ -126,25 +119,18 @@ function addFriend(event) {
         // получаем порядковый ID друга
         let friendVkId = +element.getAttribute('data-vk-id');
 
-        console.log('friendId', friendId);
-        console.log('friendVkId', friendVkId);
-
         // создаем переменную для хранения текущего друга
-        let currentFriend = leftFriends.find(item => item.id === friendVkId);
+        let currentFriend = mainFriends.find(item => item.id === friendVkId);
 
         // удаляем из массива слева нашего друга
-        leftFriends.splice(friendId, 1);
+        mainFriends.splice(friendId, 1);
 
         // добавляем нашего друга в список справа
-        rightFriends.push(currentFriend);
-
-        // cons
-        console.log('currentFriend', currentFriend);
-        console.log('rightFriends', rightFriends);
+        sortedFriends.push(currentFriend);
 
         // рендерим списки друзей
-        renderFriends(friends, leftFriends, 'friend__plus');
-        renderFriends(sortedFriends, rightFriends, 'friend__delete');
+        renderFriends(mainList, mainFriends, 'friend__plus');
+        renderFriends(sortedList, sortedFriends, 'friend__delete');
     }
 }
 
@@ -153,32 +139,29 @@ function deleteFriend(event) {
     // выбираем элемент по которому нажали
     let element = event.target;
 
-    console.log('element', element);
-
     // если это крестик, кнопка удаления
     if (element.classList.contains('friend__delete')) {
         // получаем порядковый ID друга
         let friendId = +element.getAttribute('data-id');
         // получаем VK id для перебора друга из массива
         let friendVkId = +element.getAttribute('data-vk-id');
-        console.log('friendId', friendId);
-        console.log('friendVkId', friendVkId);
 
         // получаем текущего друга сортируя по vk id
-        let currentFriend = rightFriends.find(item => item.id === friendVkId);
+        let currentFriend = sortedFriends.find(item => item.id === friendVkId);
 
         // добавляем его в основной список, вперед
-        leftFriends.unshift(currentFriend);
+        mainFriends.unshift(currentFriend);
 
         // удаляем из выбранного списка, использя порядковый id
-        rightFriends.splice(friendId, 1);
+        sortedFriends.splice(friendId, 1);
 
         // рендерим списки друзей
-        renderFriends(friends, leftFriends, 'friend__plus');
-        renderFriends(sortedFriends, rightFriends, 'friend__delete');
+        renderFriends(mainList, mainFriends, 'friend__plus');
+        renderFriends(sortedList, sortedFriends, 'friend__delete');
     }
 }
 
+// подключение к VK API
 vkLogin()
     .then(() => console.log('1. Подключились к VK API'))
     // отправляем запрос на получение друзей
@@ -191,16 +174,16 @@ vkLogin()
 
         // проверка на наличие в локальном хранилище друзей
         if (localStorage.getItem('mainFriends') && localStorage.getItem('sortedFriends')) {
-            leftFriends = JSON.parse(localStorage.getItem('mainFriends'));
-            rightFriends = JSON.parse(localStorage.getItem('sortedFriends'));
+            mainFriends = JSON.parse(localStorage.getItem('mainFriends'));
+            sortedFriends = JSON.parse(localStorage.getItem('sortedFriends'));
         } else {
-            leftFriends = data.response.items;
-            rightFriends = [];
+            mainFriends = data.response.items;
+            sortedFriends = [];
         }
 
         // рендерим списки друзей
-        renderFriends(friends, leftFriends, 'friend__plus');
-        renderFriends(sortedFriends, rightFriends, 'friend__delete');
+        renderFriends(mainList, mainFriends, 'friend__plus');
+        renderFriends(sortedList, sortedFriends, 'friend__delete');
     })
     .catch(error => console.error('1. Не удалось подключиться к VK API', error));
 
@@ -208,16 +191,16 @@ vkLogin()
 /*EVENTS*/
 
 // событие добавления друзей, нажав на элемент плюс
-friends.addEventListener('click', addFriend);
+mainList.addEventListener('click', addFriend);
 
 // событие удаления друзей, нажав на элемент крестик
-sortedFriends.addEventListener('click', deleteFriend);
+sortedList.addEventListener('click', deleteFriend);
 
 // поиск слева
-friendsSearch.addEventListener('keyup', searchFriend);
+friendsSearch.addEventListener('keyup', searchMainFriends);
 
 // поиск справа
-sortedSearch.addEventListener('keyup', searchFriend);
+sortedSearch.addEventListener('keyup', searchSortedFriends);
 
 // сохранение
 friendsSaveBtn.addEventListener('click', saveFriends);
