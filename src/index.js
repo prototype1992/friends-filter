@@ -8,7 +8,7 @@ import {
 } from './model';
 
 // элементы поиска
-const friendsSearch = document.querySelector('#friendsSearch');
+const mainSearch = document.querySelector('#mainSearch');
 const sortedSearch = document.querySelector('#sortedSearch');
 
 // блоки обертки списка друзей
@@ -53,63 +53,44 @@ function renderFriends(element, friends, btnClassName) {
     element.innerHTML = list;
 }
 
-// поиск друзей в основном списке
-function searchMainFriends(event) {
-    // создаем новый массив для найденных друзей
-    let searchFriends = [];
-
-    console.log('searchMainFriends');
-
-    // получаем значение со строки поиска
-    let value = event.target.value;
-
-    // проходимся циклом по всем друзьям
-    for (let i = 0; i < mainFriends.length; i++) {
-        // соединяем имя и фамилию
-        let fullName = `${mainFriends[i].first_name} ${mainFriends[i].last_name}`;
-        // если есть совпадение значения в fullName
-        if (isMatching(fullName, value)) {
-            // добавляем друга из текущей итерации
-            searchFriends.push(mainFriends[i]);
+// подключение к VK API
+vkLogin()
+    .then(
+        () => console.log('1. Подключились к VK API')
+    )
+    .then(
+        () => {
+            // отправляем запрос на получение друзей
+            return callApi('friends.get', {
+                v: '5.62',
+                fields: ['city', 'photo_200']
+            })
         }
-    }
-    // вызываем рендер основного списка друзей
-    renderFriends(mainList, searchFriends, 'friend__plus');
-}
+    )
+    // получили друзей из ВК
+    .then(
+        data => {
+            // проверка на наличие в локальном хранилище друзей
+            if (localStorage.getItem('mainFriends') && localStorage.getItem('sortedFriends')) {
+                mainFriends = JSON.parse(localStorage.getItem('mainFriends'));
+                sortedFriends = JSON.parse(localStorage.getItem('sortedFriends'));
+            } else {
+                mainFriends = data.response.items;
+                sortedFriends = [];
+            }
 
-// поиск друзей в основном списке
-function searchSortedFriends(event) {
-    // создаем новый массив для найденных друзей
-    let searchFriends = [];
-
-    console.log('searchSortedFriends');
-
-    // получаем значение со строки поиска
-    let value = event.target.value;
-
-    // проходимся циклом по всем друзьям
-    for (let i = 0; i < sortedFriends.length; i++) {
-        // соединяем имя и фамилию
-        let fullName = `${sortedFriends[i].first_name} ${sortedFriends[i].last_name}`;
-        // если есть совпадение значения в fullName
-        if (isMatching(fullName, value)) {
-            // добавляем друга из текущей итерации
-            searchFriends.push(sortedFriends[i]);
+            // рендерим списки друзей
+            renderFriends(mainList, mainFriends, 'friend__plus');
+            renderFriends(sortedList, sortedFriends, 'friend__delete');
         }
-    }
-    // вызываем рендер основного списка друзей
-    renderFriends(sortedList, searchFriends, 'friend__delete');
-}
+    )
+    .catch(error => console.error('1. Не удалось подключиться к VK API', error));
 
-// сохранение друзей в локальном хранилище
-function saveFriends() {
-    console.log('Сохранение...');
-    localStorage.setItem('mainFriends', JSON.stringify(mainFriends));
-    localStorage.setItem('sortedFriends', JSON.stringify(sortedFriends));
-}
 
-// добавление друзей
-function addFriend(event) {
+/*EVENTS*/
+
+// событие добавления друзей, нажав на элемент плюс
+mainList.addEventListener('click', event => {
     let element = event.target;
 
     // если это кнопка добавление с классом friend__plus
@@ -132,10 +113,10 @@ function addFriend(event) {
         renderFriends(mainList, mainFriends, 'friend__plus');
         renderFriends(sortedList, sortedFriends, 'friend__delete');
     }
-}
+});
 
-// удаление друзей из списка
-function deleteFriend(event) {
+// событие удаления друзей, нажав на элемент крестик
+sortedList.addEventListener('click', event => {
     // выбираем элемент по которому нажали
     let element = event.target;
 
@@ -159,48 +140,136 @@ function deleteFriend(event) {
         renderFriends(mainList, mainFriends, 'friend__plus');
         renderFriends(sortedList, sortedFriends, 'friend__delete');
     }
-}
-
-// подключение к VK API
-vkLogin()
-    .then(() => console.log('1. Подключились к VK API'))
-    // отправляем запрос на получение друзей
-    .then(() => {
-        return callApi('friends.get', {v: '5.62', fields: ['city', 'photo_200']})
-    })
-    // получили друзей из ВК
-    .then(data => {
-        console.log('2. Получили друзей с ВК', data.response);
-
-        // проверка на наличие в локальном хранилище друзей
-        if (localStorage.getItem('mainFriends') && localStorage.getItem('sortedFriends')) {
-            mainFriends = JSON.parse(localStorage.getItem('mainFriends'));
-            sortedFriends = JSON.parse(localStorage.getItem('sortedFriends'));
-        } else {
-            mainFriends = data.response.items;
-            sortedFriends = [];
-        }
-
-        // рендерим списки друзей
-        renderFriends(mainList, mainFriends, 'friend__plus');
-        renderFriends(sortedList, sortedFriends, 'friend__delete');
-    })
-    .catch(error => console.error('1. Не удалось подключиться к VK API', error));
-
-
-/*EVENTS*/
-
-// событие добавления друзей, нажав на элемент плюс
-mainList.addEventListener('click', addFriend);
-
-// событие удаления друзей, нажав на элемент крестик
-sortedList.addEventListener('click', deleteFriend);
+});
 
 // поиск слева
-friendsSearch.addEventListener('keyup', searchMainFriends);
+mainSearch.addEventListener('keyup', event => {
+    // создаем новый массив для найденных друзей
+    let searchFriends = [];
+
+    console.log('searchMainFriends');
+
+    // получаем значение со строки поиска
+    let value = event.target.value;
+
+    // проходимся циклом по всем друзьям
+    for (let i = 0; i < mainFriends.length; i++) {
+        // соединяем имя и фамилию
+        let fullName = `${mainFriends[i].first_name} ${mainFriends[i].last_name}`;
+        // если есть совпадение значения в fullName
+        if (isMatching(fullName, value)) {
+            // добавляем друга из текущей итерации
+            searchFriends.push(mainFriends[i]);
+        }
+    }
+    // вызываем рендер основного списка друзей
+    renderFriends(mainList, searchFriends, 'friend__plus');
+});
 
 // поиск справа
-sortedSearch.addEventListener('keyup', searchSortedFriends);
+sortedSearch.addEventListener('keyup', event => {
+    // создаем новый массив для найденных друзей
+    let searchFriends = [];
+
+    console.log('searchSortedFriends');
+
+    // получаем значение со строки поиска
+    let value = event.target.value;
+
+    // проходимся циклом по всем друзьям
+    for (let i = 0; i < sortedFriends.length; i++) {
+        // соединяем имя и фамилию
+        let fullName = `${sortedFriends[i].first_name} ${sortedFriends[i].last_name}`;
+        // если есть совпадение значения в fullName
+        if (isMatching(fullName, value)) {
+            // добавляем друга из текущей итерации
+            searchFriends.push(sortedFriends[i]);
+        }
+    }
+    // вызываем рендер основного списка друзей
+    renderFriends(sortedList, searchFriends, 'friend__delete');
+});
 
 // сохранение
-friendsSaveBtn.addEventListener('click', saveFriends);
+friendsSaveBtn.addEventListener('click', () => {
+    localStorage.setItem('mainFriends', JSON.stringify(mainFriends));
+    localStorage.setItem('sortedFriends', JSON.stringify(sortedFriends));
+});
+
+/* dnd events */
+mainList.addEventListener('dragstart', event => {
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('friend', event.target.getAttribute('data-vk-id'));
+    return true;
+});
+
+sortedList.addEventListener('dragstart', event => {
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('friend', event.target.getAttribute('data-vk-id'));
+    return true;
+});
+
+sortedList.addEventListener('dragenter', moveDragEnter);
+sortedList.addEventListener('dragover', moveDragOver);
+sortedList.addEventListener('drop', event => {
+    event.preventDefault();
+    let friendVkId = +event.dataTransfer.getData('friend');
+    let currentFriend = null;
+    // перебираем друзей
+    for (let i = 0; i < mainFriends.length; i++) {
+        if (mainFriends[i].id === friendVkId) {
+            // присваиваем найденого друга
+            currentFriend = mainFriends[i];
+            // добавляем друга в выбранный список
+            sortedFriends.push(currentFriend);
+            // удаляем друга из текущего списка
+            mainFriends.splice(i, 1);
+            // прерываем цикл
+            break;
+        }
+    }
+    // рендерим списки друзей
+    renderFriends(mainList, mainFriends, 'friend__plus');
+    renderFriends(sortedList, sortedFriends, 'friend__delete');
+
+    // очищаем поля поиска
+    mainSearch.value = '';
+    sortedSearch.value = '';
+});
+
+mainList.addEventListener('dragenter', moveDragEnter);
+mainList.addEventListener('dragover', moveDragOver);
+mainList.addEventListener('drop', event => {
+    event.preventDefault();
+    let friendVkId = +event.dataTransfer.getData('friend');
+    let currentFriend = null;
+    // перебираем друзей
+    for (let i = 0; i < sortedFriends.length; i++) {
+        if (sortedFriends[i].id === friendVkId) {
+            // присваиваем найденого друга
+            currentFriend = sortedFriends[i];
+            // добавляем друга в выбранный список
+            mainFriends.unshift(currentFriend);
+            // удаляем друга из текущего списка
+            sortedFriends.splice(i, 1);
+            // прерываем цикл
+            break;
+        }
+    }
+    // рендерим списки друзей
+    renderFriends(mainList, mainFriends, 'friend__plus');
+    renderFriends(sortedList, sortedFriends, 'friend__delete');
+
+    // очищаем поля поиска
+    mainSearch.value = '';
+    sortedSearch.value = '';
+});
+
+function moveDragEnter(event) {
+    event.preventDefault();
+    return true;
+}
+
+function moveDragOver(event) {
+    event.preventDefault();
+}
