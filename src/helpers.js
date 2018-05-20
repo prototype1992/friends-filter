@@ -2,5 +2,9 @@
 export function isMatching(full, chunk) {
     full = full.toLowerCase();
     chunk = chunk.toLowerCase();
-    return full.indexOf(chunk) + 1 ? true : false;
+    if (full.indexOf(chunk) + 1) {
+        return true;
+    } else {
+        return false;
+    }
 }

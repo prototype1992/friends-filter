@@ -109,9 +109,24 @@ mainList.addEventListener('click', event => {
         // добавляем нашего друга в список справа
         sortedFriends.push(currentFriend);
 
-        // рендерим списки друзей
-        renderFriends(mainList, mainFriends, 'friend__plus');
-        renderFriends(sortedList, sortedFriends, 'friend__delete');
+        // фильтр на основе поиска
+        if (sortedSearch.value) {
+            let searchArray = [];
+            for (let item of sortedFriends) {
+                let fio = `${item.first_name} ${item.last_name}`;
+                if (isMatching(fio, sortedSearch.value)) {
+                    searchArray.push(item);
+                    console.log('item', item);
+                }
+            }
+            // рендерим списки друзей
+            renderFriends(mainList, mainFriends, 'friend__plus');
+            renderFriends(sortedList, searchArray, 'friend__delete');
+        } else {
+            // рендерим списки друзей
+            renderFriends(mainList, mainFriends, 'friend__plus');
+            renderFriends(sortedList, sortedFriends, 'friend__delete');
+        }
     }
 });
 
@@ -136,9 +151,24 @@ sortedList.addEventListener('click', event => {
         // удаляем из выбранного списка, использя порядковый id
         sortedFriends.splice(friendId, 1);
 
-        // рендерим списки друзей
-        renderFriends(mainList, mainFriends, 'friend__plus');
-        renderFriends(sortedList, sortedFriends, 'friend__delete');
+        // фильтр на основе поиска
+        if (mainSearch.value) {
+            let searchArray = [];
+            for (let item of mainFriends) {
+                let fio = `${item.first_name} ${item.last_name}`;
+                if (isMatching(fio, mainSearch.value)) {
+                    searchArray.push(item);
+                    console.log('item', item);
+                }
+            }
+            // рендерим списки друзей
+            renderFriends(mainList, searchArray, 'friend__plus');
+            renderFriends(sortedList, sortedFriends, 'friend__delete');
+        } else {
+            // рендерим списки друзей
+            renderFriends(mainList, mainFriends, 'friend__plus');
+            renderFriends(sortedList, sortedFriends, 'friend__delete');
+        }
     }
 });
 
@@ -209,6 +239,7 @@ sortedList.addEventListener('dragstart', event => {
     return true;
 });
 
+// добавление в правый список
 sortedList.addEventListener('dragenter', moveDragEnter);
 sortedList.addEventListener('dragover', moveDragOver);
 sortedList.addEventListener('drop', event => {
@@ -228,15 +259,28 @@ sortedList.addEventListener('drop', event => {
             break;
         }
     }
-    // рендерим списки друзей
-    renderFriends(mainList, mainFriends, 'friend__plus');
-    renderFriends(sortedList, sortedFriends, 'friend__delete');
 
-    // очищаем поля поиска
-    mainSearch.value = '';
-    sortedSearch.value = '';
+    // фильтр на основе поиска
+    if (sortedSearch.value) {
+        let searchArray = [];
+        for (let item of sortedFriends) {
+            let fio = `${item.first_name} ${item.last_name}`;
+            if (isMatching(fio, sortedSearch.value)) {
+                searchArray.push(item);
+                console.log('item', item);
+            }
+        }
+        // рендерим списки друзей
+        renderFriends(mainList, mainFriends, 'friend__plus');
+        renderFriends(sortedList, searchArray, 'friend__delete');
+    } else {
+        // рендерим списки друзей
+        renderFriends(mainList, mainFriends, 'friend__plus');
+        renderFriends(sortedList, sortedFriends, 'friend__delete');
+    }
 });
 
+// добавление в левый список
 mainList.addEventListener('dragenter', moveDragEnter);
 mainList.addEventListener('dragover', moveDragOver);
 mainList.addEventListener('drop', event => {
@@ -256,13 +300,25 @@ mainList.addEventListener('drop', event => {
             break;
         }
     }
-    // рендерим списки друзей
-    renderFriends(mainList, mainFriends, 'friend__plus');
-    renderFriends(sortedList, sortedFriends, 'friend__delete');
 
-    // очищаем поля поиска
-    mainSearch.value = '';
-    sortedSearch.value = '';
+    // фильтр на основе поиска
+    if (mainSearch.value) {
+        let searchArray = [];
+        for (let item of mainFriends) {
+            let fio = `${item.first_name} ${item.last_name}`;
+            if (isMatching(fio, mainSearch.value)) {
+                searchArray.push(item);
+                console.log('item', item);
+            }
+        }
+        // рендерим списки друзей
+        renderFriends(mainList, searchArray, 'friend__plus');
+        renderFriends(sortedList, sortedFriends, 'friend__delete');
+    } else {
+        // рендерим списки друзей
+        renderFriends(mainList, mainFriends, 'friend__plus');
+        renderFriends(sortedList, sortedFriends, 'friend__delete');
+    }
 });
 
 function moveDragEnter(event) {
