@@ -8,3 +8,9 @@ export function isMatching(full, chunk) {
         return false;
     }
 }
+
+export function clearMessages(element) {
+    setTimeout(() => {
+        element.textContent = '';
+    }, 2000)
+}

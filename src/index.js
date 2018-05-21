@@ -1,5 +1,6 @@
 import {
-    isMatching
+    isMatching,
+    clearMessages
 } from './helpers';
 
 import {
@@ -17,6 +18,7 @@ const sortedList = document.querySelector('#sortedList');
 
 // кнопка сохранения в локальном хранилище
 const friendsSaveBtn = document.querySelector('#friendsSaveBtn');
+const message = document.querySelector('#messages');
 
 // массивы для хранения друзей
 let mainFriends = [];
@@ -127,6 +129,11 @@ mainList.addEventListener('click', event => {
             renderFriends(mainList, mainFriends, 'friend__plus');
             renderFriends(sortedList, sortedFriends, 'friend__delete');
         }
+
+        // сообщение о добавлении
+        message.textContent = 'Друг добавлен в выбранный список';
+        // очишаем сообщение
+        clearMessages(message);
     }
 });
 
@@ -169,6 +176,11 @@ sortedList.addEventListener('click', event => {
             renderFriends(mainList, mainFriends, 'friend__plus');
             renderFriends(sortedList, sortedFriends, 'friend__delete');
         }
+
+        // сообщение о добавлении
+        message.textContent = 'Друг добавлен в основной список';
+        // очишаем сообщение
+        clearMessages(message);
     }
 });
 
@@ -194,6 +206,13 @@ mainSearch.addEventListener('keyup', event => {
     }
     // вызываем рендер основного списка друзей
     renderFriends(mainList, searchFriends, 'friend__plus');
+
+    if (searchFriends.length === 0) {
+        // сообщение о добавлении
+        message.textContent = 'Друг не найден';
+        // очишаем сообщение
+        clearMessages(message);
+    }
 });
 
 // поиск справа
@@ -218,12 +237,24 @@ sortedSearch.addEventListener('keyup', event => {
     }
     // вызываем рендер основного списка друзей
     renderFriends(sortedList, searchFriends, 'friend__delete');
+
+    if (searchFriends.length === 0) {
+        // сообщение о добавлении
+        message.textContent = 'Друг не найден';
+        // очишаем сообщение
+        clearMessages(message);
+    }
 });
 
 // сохранение
 friendsSaveBtn.addEventListener('click', () => {
     localStorage.setItem('mainFriends', JSON.stringify(mainFriends));
     localStorage.setItem('sortedFriends', JSON.stringify(sortedFriends));
+
+    // сообщение о добавлении
+    message.textContent = 'Сохранено в LocalStorage';
+    // очишаем сообщение
+    clearMessages(message);
 });
 
 /* dnd events */
@@ -278,6 +309,11 @@ sortedList.addEventListener('drop', event => {
         renderFriends(mainList, mainFriends, 'friend__plus');
         renderFriends(sortedList, sortedFriends, 'friend__delete');
     }
+
+    // сообщение о добавлении
+    message.textContent = 'Друг добавлен в выбранный список';
+    // очишаем сообщение
+    clearMessages(message);
 });
 
 // добавление в левый список
@@ -319,6 +355,11 @@ mainList.addEventListener('drop', event => {
         renderFriends(mainList, mainFriends, 'friend__plus');
         renderFriends(sortedList, sortedFriends, 'friend__delete');
     }
+
+    // сообщение о добавлении
+    message.textContent = 'Друг добавлен в основной список';
+    // очишаем сообщение
+    clearMessages(message);
 });
 
 function moveDragEnter(event) {
